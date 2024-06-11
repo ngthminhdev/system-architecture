@@ -62,22 +62,23 @@ services:
   #   networks:
   #     - system_network
 
-  udp:
-    container_name: udp
-    ports:
-      - "3006:3000"
-    build: 
-      context: ./udp
-      dockerfile: Dockerfile
-    volumes:
-      - ./udp:/services/app
-    networks:
-      - system_network
+  # udp:
+  #   container_name: udp
+  #   ports:
+  #     - "3006:3000"
+  #   build: 
+  #     context: ./udp
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./udp:/services/app
+  #   networks:
+  #     - system_network
 
-  queue:
-    container_name: queue
+  log_processor:
+    container_name: log_processor
     ports:
       - "3007:3000"
+      - "514:514"
     build: 
       context: ./queue
       dockerfile: Dockerfile
@@ -130,27 +131,27 @@ services:
     networks:
       - system_network
 
-  jaeger:
-    container_name: jaeger
-    image: jaegertracing/all-in-one:1.30
-    ports:
-      - "5775:5775/udp"
-      - "6831:6831/udp"
-      - "6832:6832/udp"
-      - "5778:5778"
-      - "16686:16686"
-      - "14268:14268"
-      - "14250:14250"
-      - "9411:9411"
-    environment:
-      - SPAN_STORAGE_TYPE=elasticsearch
-      - ES_SERVER_URLS=http://elasticsearch:9200
-      - LOG_LEVEL=debug
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    networks:
-      - system_network
+  # jaeger:
+  #   container_name: jaeger
+  #   image: jaegertracing/all-in-one:1.30
+  #   ports:
+  #     - "5775:5775/udp"
+  #     - "6831:6831/udp"
+  #     - "6832:6832/udp"
+  #     - "5778:5778"
+  #     - "16686:16686"
+  #     - "14268:14268"
+  #     - "14250:14250"
+  #     - "9411:9411"
+  #   environment:
+  #     - SPAN_STORAGE_TYPE=elasticsearch
+  #     - ES_SERVER_URLS=http://elasticsearch:9200
+  #     - LOG_LEVEL=debug
+  #   depends_on:
+  #     elasticsearch:
+  #       condition: service_healthy
+  #   networks:
+  #     - system_network
 
   elasticsearch:
     container_name: elasticsearch
@@ -168,8 +169,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    # volumes:
-      # - esdata:/usr/share/elasticsearch/data
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
 
   kibana:
     container_name: kibana
@@ -187,3 +188,6 @@ services:
 
 networks:
   system_network:
+  
+volumes:
+  esdata:

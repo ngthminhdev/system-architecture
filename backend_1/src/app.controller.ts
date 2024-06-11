@@ -15,9 +15,16 @@ import { FORMAT_HTTP_HEADERS } from 'opentracing';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Get('/logs')
+  async getLogs(@Req() req: Request | any, @Res() res: Response) {
+    try {
+      global.logger.info('calling api logs backend_1');
+
+      return res.status(HttpStatus.OK).json({ message: 'OK' });
+    } catch (error) {
+      global.logger.error(error);
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @Get('/continue')

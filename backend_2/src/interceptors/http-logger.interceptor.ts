@@ -22,13 +22,15 @@ export class HttpLoggerInterceptor implements NestInterceptor {
       originalUrl,
       body = {},
       query = {},
-      headers = {},
+      // headers = {},
     } = req;
     const span = global.jaeger.startSpan(req);
 
     global.logger.info(
-      `url:${originalUrl}, method:${method}, ip:${ip}, body:${JSON.stringify(body, null, 1)}, query:${JSON.stringify(query, null, 1)}, headers: ${JSON.stringify(headers, null, 1)}`,
+      `url:${originalUrl}, method:${method}, ip:${ip}, body:${JSON.stringify(body)}, query:${JSON.stringify(query)}`,
     );
+
+    // console.log(req);
     return next.handle().pipe(
       tap(() => {
         // Kết thúc Jaeger span

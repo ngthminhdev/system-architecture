@@ -15,7 +15,6 @@ export class HttpLoggerInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Observable<any> | Promise<Observable<any>> {
     const req = context.switchToHttp().getRequest();
-    const res = context.switchToHttp().getResponse();
     const {
       ip,
       method,
@@ -23,18 +22,39 @@ export class HttpLoggerInterceptor implements NestInterceptor {
       body = {},
       query = {},
       headers = {},
+      span = {},
     } = req;
-    const span = global.jaeger.startSpan(req);
+    const startTime = Date.now();
+    // const span = global.jaeger.startSpan(req);
 
-    global.logger.info(
-      `url:${originalUrl}, method:${method}, ip:${ip}, body:${JSON.stringify(body, null, 1)}, query:${JSON.stringify(query, null, 1)}, headers: ${JSON.stringify(headers, null, 1)}`,
-    );
+    // global.logger.info(
+    //   `url:${originalUrl}, method:${method}, ip:${ip}, body:${JSON.stringify(body)}, query:${JSON.stringify(query)}`,
+    // );
 
-    console.log(req);
+    // console.log(req);
     return next.handle().pipe(
       tap(() => {
-        // Kết thúc Jaeger span
-        global.jaeger.finishSpan(span, req, res);
+        const res = context.switchToHttp().getResponse();
+        const { statusCode } = res;
+        const responseTime = Date.now() - startTime;
+
+        const logMessage = {
+          url: originalUrl,
+          method,
+          ip,
+          body: JSON.stringify(body),
+          query: JSON.stringify(query),
+          headers: JSON.stringify(headers),
+          statusCode,
+          responseTime,
+          service: 'backend_1',
+          span: JSON.stringify(span),
+          payload: null,
+          source: 'http',
+          // timestamp: new Date().toISOString(),
+        };
+
+        global.logger.http(JSON.stringify(logMessage));
       }),
     );
   }
