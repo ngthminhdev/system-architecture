@@ -10,7 +10,7 @@ export class LoggerService {
 
   constructor() {
     const transport = new winston.transports.DailyRotateFile({
-      filename: 'logs/backend_1-%DATE%.log',
+      filename: 'logs/backend_2-%DATE%.log',
       datePattern: 'YYYY-MM-DD',
       zippedArchive: true,
       maxSize: '20m',
@@ -32,9 +32,9 @@ export class LoggerService {
           host: 'udp',
           port: 3000,
           protocol: 'udp4',
-          localhost: 'service_name:backend_1',
+          localhost: 'service_name:backend_2',
           facility: 'dev',
-          app_name: 'backend_1',
+          app_name: 'backend_2',
           format: winston.format.printf(({ timestamp, level, message }) => {
             return `${timestamp} ${level}: ${message}`;
           }),

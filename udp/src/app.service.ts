@@ -76,6 +76,8 @@ export class AppService implements OnModuleInit {
     let finalMessage = message.split(']: ')[1];
     if (message.includes('url:')) {
       finalMessage = '[API-LOG] ' + finalMessage;
+    } else if (message.includes('trace')) {
+      finalMessage = '[JAEGER-LOG] ' + finalMessage;
     } else {
       finalMessage = '[DEV-LOG] ' + finalMessage;
     }

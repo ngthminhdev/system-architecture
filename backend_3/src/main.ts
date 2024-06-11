@@ -1,15 +1,28 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
+import { LoggerService } from './logger/logger.service';
+import { HttpLoggerInterceptor } from './interceptors/http-logger.interceptor';
+import { JeagerService } from './jeager/jeager.service';
 
 async function bootstrap() {
-  const logger = new Logger('Server', {
+  const ServerLogger = new Logger('Server', {
     timestamp: true,
   });
-
   const app = await NestFactory.create(AppModule);
+
+  const logger = app.get(LoggerService);
+  global.logger = logger;
+
+  const jaeger = app.get(JeagerService);
+  global.jaeger = jaeger;
+
+  // app.use(jaeger.tracing());
+
+  app.useGlobalInterceptors(new HttpLoggerInterceptor());
+
   await app.listen(3000, '0.0.0.0').then(() => {
-    logger.log('Server is running at 3000');
+    ServerLogger.log('Server is running at 3000');
   });
 }
 bootstrap();

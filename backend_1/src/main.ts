@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import { LoggerService } from './logger/logger.service';
 import { HttpLoggerInterceptor } from './interceptors/http-logger.interceptor';
+import { JeagerService } from './jeager/jeager.service';
 
 async function bootstrap() {
   const ServerLogger = new Logger('Server', {
@@ -12,6 +13,11 @@ async function bootstrap() {
 
   const logger = app.get(LoggerService);
   global.logger = logger;
+
+  const jaeger = app.get(JeagerService);
+  global.jaeger = jaeger;
+
+  // app.use(jaeger.tracing());
 
   app.useGlobalInterceptors(new HttpLoggerInterceptor());
 
