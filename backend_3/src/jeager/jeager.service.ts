@@ -13,11 +13,11 @@ export class JeagerService implements OnModuleInit {
 
   initTracer() {
     const config = {
-      serviceName: 'backend_1',
+      serviceName: 'backend_3',
       traceId128bit: true,
-      reporter: {
-        collectorEndpoint: 'http://jaeger:14268/api/traces',
-      },
+      // reporter: {
+      //   collectorEndpoint: 'http://jaeger:14268/api/traces',
+      // },
       sampler: {
         type: 'const',
         param: 1,
@@ -45,7 +45,9 @@ export class JeagerService implements OnModuleInit {
     return span;
   }
 
-  finishSpan(span: Span, req: any, res: any) {
+  finishSpan(span: any, req: any, res: any, error: any) {
+    const spanContext = span.context();
+
     const tags = {
       [Tags.HTTP_METHOD]: req.method,
       [Tags.HTTP_URL]: req.originalUrl,
@@ -54,15 +56,55 @@ export class JeagerService implements OnModuleInit {
       'http.query': JSON.stringify(req.query),
     };
 
-    if (res._error) {
+    if (error) {
       tags[Tags.ERROR] = 'true';
-      tags['error.message'] = res._error.message;
+      tags['error.message'] = error?.message;
     }
 
     Object.keys(tags).forEach((key) => {
       span.setTag(key, tags[key]);
     });
 
+    const traceMessage: any = {
+      id: spanContext?._spanId ? spanContext?._spanId?.toString('hex') : null,
+      traceId: spanContext?._traceId
+        ? spanContext?._traceId?.toString('hex')
+        : null,
+      name: span._operationName,
+      kind: Tags.SPAN_KIND_RPC_SERVER.toUpperCase(),
+      duration: span._duration * 1000,
+      timestamp: span._startTime * 1000,
+      localEndpoint: {
+        serviceName: 'backend_3',
+      },
+      remoteEndpoint: {
+        ipv4: req.ip,
+      },
+      tags: tags,
+    };
+
+    if (spanContext._parentId) {
+      traceMessage.parentId = spanContext._parentId.toString('hex');
+    } else {
+      traceMessage.parentId = spanContext._parentIdStr;
+    }
+
+    if (traceMessage.parentId) {
+      // add more zero up 16 long
+      traceMessage.parentId = this.padWithZeroes(traceMessage.parentId, 16);
+    }
+
+    // span.setTag(Tags.ERROR, true);
+    // span.log({ 'error.message': 'error.message', 'error.stack': null });
     span.finish();
+    global.logger.trace(traceMessage);
+  }
+
+  padWithZeroes(number, length) {
+    let my_string = '' + number;
+    while (my_string.length < length) {
+      my_string = '0' + my_string;
+    }
+    return my_string;
   }
 }

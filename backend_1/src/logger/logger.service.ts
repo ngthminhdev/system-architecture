@@ -40,7 +40,7 @@ export class LoggerService {
     });
   }
 
-  formatLog(payload: any, source: string) {
+  formatLog(payload: any = '') {
     return {
       url: null,
       method: null,
@@ -53,7 +53,14 @@ export class LoggerService {
       service: 'backend_1',
       span: null,
       payload: payload,
-      source,
+      source: 'dev',
+    };
+  }
+
+  formatJaeger(payload: any) {
+    return {
+      service: 'backend_1',
+      payload: payload,
     };
   }
 
@@ -62,7 +69,10 @@ export class LoggerService {
   }
 
   trace(message: string) {
-    this.log('info', `[JAEGER-LOG] ${message}`);
+    this.log(
+      'info',
+      `[JAEGER-LOG] ${JSON.stringify(this.formatJaeger(message))}`,
+    );
   }
 
   http(message: string) {
@@ -70,23 +80,14 @@ export class LoggerService {
   }
 
   info(message: string) {
-    this.log(
-      'info',
-      `[DEV-LOG] ${JSON.stringify(this.formatLog(message, 'dev'))}`,
-    );
+    this.log('info', `[DEV-LOG] ${JSON.stringify(this.formatLog(message))}`);
   }
 
   error(message: string) {
-    this.log(
-      'error',
-      `[DEV-LOG] ${JSON.stringify(this.formatLog(message, 'dev'))}`,
-    );
+    this.log('error', `[DEV-LOG] ${JSON.stringify(this.formatLog(message))}`);
   }
 
   warn(message: string) {
-    this.log(
-      'warn',
-      `[DEV-LOG] ${JSON.stringify(this.formatLog(message, 'dev'))}`,
-    );
+    this.log('warn', `[DEV-LOG] ${JSON.stringify(this.formatLog(message))}`);
   }
 }
