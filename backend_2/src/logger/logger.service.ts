@@ -52,14 +52,14 @@ export class LoggerService {
       responseTime: null,
       service: 'backend_2',
       span: null,
-      payload: payload,
+      payload: `${payload}`,
       source: 'dev',
     };
   }
 
   formatJaeger(payload: any) {
     return {
-      service: 'backend_2',
+      service: 'backend_1',
       payload: payload,
     };
   }

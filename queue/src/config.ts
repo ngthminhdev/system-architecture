@@ -9,7 +9,7 @@ export const kafkaConfig: KafkaOptions = {
       clientId: 'queue-clientId',
     },
     consumer: {
-      groupId: 'queue-groupId',
+      groupId: 'log-processor-group1',
       allowAutoTopicCreation: true,
     },
     producer: {

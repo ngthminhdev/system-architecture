@@ -52,7 +52,7 @@ export class LoggerService {
       responseTime: null,
       service: 'backend_1',
       span: null,
-      payload: payload,
+      payload: `${payload}`,
       source: 'dev',
     };
   }

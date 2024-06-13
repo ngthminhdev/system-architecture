@@ -50,16 +50,16 @@ export class LoggerService {
       headers: null,
       statusCode: null,
       responseTime: null,
-      service: 'backend_3',
+      service: 'backend_2',
       span: null,
-      payload: payload,
+      payload: `${payload}`,
       source: 'dev',
     };
   }
 
   formatJaeger(payload: any) {
     return {
-      service: 'backend_3',
+      service: 'backend_1',
       payload: payload,
     };
   }

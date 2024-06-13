@@ -15,9 +15,9 @@ export class JeagerService implements OnModuleInit {
     const config = {
       serviceName: 'backend_2',
       traceId128bit: true,
-      // reporter: {
-      //   collectorEndpoint: 'http://jaeger:14268/api/traces',
-      // },
+      reporter: {
+        collectorEndpoint: 'http://jaeger:14268/api/traces',
+      },
       sampler: {
         type: 'const',
         param: 1,
@@ -66,10 +66,12 @@ export class JeagerService implements OnModuleInit {
     });
 
     const traceMessage: any = {
-      id: spanContext?._spanId ? spanContext?._spanId?.toString('hex') : null,
-      traceId: spanContext?._traceId
-        ? spanContext?._traceId?.toString('hex')
-        : null,
+      id: spanContext._spanId
+        ? spanContext._spanId.toString('hex')
+        : spanContext._spanIdStr,
+      traceId: spanContext._traceId
+        ? spanContext._traceId.toString('hex')
+        : spanContext._traceIdStr,
       name: span._operationName,
       kind: Tags.SPAN_KIND_RPC_SERVER.toUpperCase(),
       duration: span._duration * 1000,
@@ -85,17 +87,14 @@ export class JeagerService implements OnModuleInit {
 
     if (spanContext._parentId) {
       traceMessage.parentId = spanContext._parentId.toString('hex');
-    } else {
+    } else if (spanContext._parentIdStr) {
       traceMessage.parentId = spanContext._parentIdStr;
     }
 
     if (traceMessage.parentId) {
-      // add more zero up 16 long
       traceMessage.parentId = this.padWithZeroes(traceMessage.parentId, 16);
     }
 
-    // span.setTag(Tags.ERROR, true);
-    // span.log({ 'error.message': 'error.message', 'error.stack': null });
     span.finish();
     global.logger.trace(traceMessage);
   }

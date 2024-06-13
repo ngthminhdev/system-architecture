@@ -18,7 +18,7 @@ export class AppController {
     try {
       global.logger.info('calling api logs backend_1');
       // global.logger.error('error calling api logs backend_1');
-      throw new HttpException('Error 400', HttpStatus.BAD_REQUEST);
+      // throw new HttpException('Error 400', HttpStatus.BAD_REQUEST);
 
       return res.status(HttpStatus.OK).json({ message: 'OK' });
     } catch (error) {
@@ -31,11 +31,14 @@ export class AppController {
   async getContinue(@Req() req: Request | any, @Res() res: Response) {
     try {
       global.logger.info('calling api backend_1');
-      const data = await global.sdk.get('http://backend_2:3000/continue', req);
+      const data2 = await global.sdk.get('http://backend_3:3000/continue', req);
+      global.logger.info(`backend3 response ${JSON.stringify(data2)}`);
+      // const data = await global.sdk.get('http://backend_2:3000/continue', req);
+
       // const data2 = await axios.get('http://backend_3:3000/continue', {
       //   headers: req.headers,
       // });
-      return res.send(data);
+      return res.send(data2);
       // return res.send(data);
     } catch (error) {
       global.logger.error(error);

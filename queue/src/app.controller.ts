@@ -126,12 +126,16 @@ export class AppController implements OnModuleInit {
     @Payload() payload: IncomingMessage,
     @Ctx() context: KafkaContext,
   ) {
-    const { offset, value } = context.getMessage();
-    this.elasticLogger.info(value);
-
-    const partition = context.getPartition();
-    const topic = context.getTopic();
-    await this.client.commitOffsets([{ topic, partition, offset }]);
+    try {
+      const { offset, value } = context.getMessage();
+      // console.log(value);
+      this.elasticLogger.info(value);
+      const partition = context.getPartition();
+      const topic = context.getTopic();
+      await this.client.commitOffsets([{ topic, partition, offset }]);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   @EventPattern('dev.log')
@@ -139,12 +143,17 @@ export class AppController implements OnModuleInit {
     @Payload() payload: IncomingMessage,
     @Ctx() context: KafkaContext,
   ) {
-    const { offset, value } = context.getMessage();
-    this.elasticLogger.info(value);
+    try {
+      const { offset, value } = context.getMessage();
+      this.elasticLogger.info(value);
+      // console.log(value);
 
-    const partition = context.getPartition();
-    const topic = context.getTopic();
-    await this.client.commitOffsets([{ topic, partition, offset }]);
+      const partition = context.getPartition();
+      const topic = context.getTopic();
+      await this.client.commitOffsets([{ topic, partition, offset }]);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   @EventPattern('jaeger.log')
@@ -152,16 +161,20 @@ export class AppController implements OnModuleInit {
     @Payload() payload: IncomingMessage,
     @Ctx() context: KafkaContext,
   ) {
-    const { offset, value } = context.getMessage();
-    this.sendTraceToJaeger(value);
-    const partition = context.getPartition();
-    const topic = context.getTopic();
-    await this.client.commitOffsets([{ topic, partition, offset }]);
+    try {
+      const { offset, value } = context.getMessage();
+      // this.sendTraceToJaeger(value);
+      const partition = context.getPartition();
+      const topic = context.getTopic();
+      await this.client.commitOffsets([{ topic, partition, offset }]);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   sendTraceToJaeger(logData: any) {
     const { payload, service } = logData;
-    this.initTracer('backend_1');
+    this.initTracer(service);
 
     const span = this.tracer.startSpan(payload.name, {
       startTime: payload.timestamp / 1000,

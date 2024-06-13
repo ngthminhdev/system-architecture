@@ -18,6 +18,10 @@ export class AppController {
     try {
       global.logger.info('calling api backend_2');
       const data = await global.sdk.get('http://backend_3:3000/continue', req);
+      throw new HttpException(
+        'error in backend 2 errorrrrrrrrrrr',
+        HttpStatus.BAD_REQUEST,
+      );
 
       return res.send(data);
     } catch (error) {
